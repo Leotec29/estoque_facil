@@ -168,19 +168,19 @@ flutter run
 
 ## 📱 Screenshots
 
-As imagens abaixo devem ser adicionadas após a captura das telas do aplicativo.
 
 ### Tela inicial
 
-> Adicionar aqui uma captura da Home.
+![Tela inicial do Estoque Fácil](docs/images/home.png)
 
 ### Lista de produtos
 
-> Adicionar aqui uma captura da lista de produtos.
+![Lista de produtos do Estoque Fácil](docs/images/lista_produtos.png)
 
 ### Cadastro de produto
 
-> Adicionar aqui uma captura do formulário de cadastro.
+![Formulário de cadastro de produto](docs/images/cadastro_produto.png)
+
 
 ## 🔗 Repositório
 
