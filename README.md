@@ -139,7 +139,7 @@ A organização separa as responsabilidades do projeto:
 Clone o repositório:
 
 ```bash
-git clone URL_DO_REPOSITORIO
+git clone https://github.com/Leotec29/estoque_facil.git
 ```
 
 Entre na pasta:
@@ -185,7 +185,7 @@ As imagens abaixo devem ser adicionadas após a captura das telas do aplicativo.
 ## 🔗 Repositório
 
 **GitHub:**
-Adicionar aqui o link do repositório do projeto.
+https://github.com/Leotec29/estoque_facil
 
 ## 🔮 Evoluções futuras
 
