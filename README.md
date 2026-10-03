@@ -8,42 +8,53 @@ O **Estoque Fácil** é um aplicativo desenvolvido como projeto acadêmico do cu
 
 A proposta é criar uma solução simples para facilitar o cadastro, visualização e organização de produtos de um estoque.
 
-Nesta primeira versão, os dados utilizados são locais e simulados (mock). Nas próximas etapas do projeto, o aplicativo será evoluído para utilizar autenticação de usuários e banco de dados em nuvem.
+Nesta etapa do projeto, o aplicativo foi evoluído com **autenticação de usuários utilizando Firebase Authentication**, mantendo as funcionalidades de produtos da versão anterior.
 
 ## 🎯 Objetivo
 
 O objetivo do aplicativo é oferecer uma interface simples para que o usuário possa:
 
+* Criar uma conta;
+* Entrar no aplicativo;
+* Recuperar a senha;
+* Sair da conta;
 * Visualizar produtos cadastrados;
 * Consultar informações de um produto;
 * Cadastrar novos produtos;
 * Informar preço e quantidade em estoque;
 * Receber mensagens de validação e confirmação.
 
-## 🏪 Domínio da aplicação
+## 🔐 Autenticação
 
-O projeto pertence ao domínio de **controle de estoque e gerenciamento de produtos**.
+Nesta etapa foi implementada a autenticação utilizando **Firebase Authentication**.
 
-O principal objeto utilizado atualmente é o **Produto**, que possui:
+O aplicativo possui:
 
-* ID;
-* Nome;
-* Categoria;
-* Preço;
-* Quantidade em estoque.
+* Cadastro de usuários com e-mail e senha;
+* Login com e-mail e senha;
+* Recuperação de senha por e-mail;
+* Logout;
+* Validação dos campos dos formulários;
+* Mensagens de erro para situações de autenticação;
+* Proteção das telas internas;
+* Redirecionamento para o login quando o usuário não está autenticado;
+* Manutenção da sessão do usuário através do Firebase.
 
-## 🚀 Funcionalidades atuais
+As informações de senha não são armazenadas manualmente pelo aplicativo. O gerenciamento da autenticação é realizado pelo Firebase Authentication.
 
-### 🏠 Tela inicial
+## 🏠 Tela inicial
 
-Apresenta o aplicativo e um resumo do estoque, mostrando:
+Após realizar o login, o usuário tem acesso à tela inicial do Estoque Fácil.
+
+A tela apresenta:
 
 * Quantidade de produtos cadastrados;
 * Quantidade total de itens em estoque;
 * Acesso à lista de produtos;
-* Acesso ao cadastro de produtos.
+* Acesso ao cadastro de produtos;
+* Opção para sair da conta.
 
-### 📦 Lista de produtos
+## 📦 Lista de produtos
 
 Exibe os produtos cadastrados utilizando dados simulados.
 
@@ -53,7 +64,7 @@ Atualmente são utilizados três produtos de exemplo:
 * Furadeira;
 * Chave de Fenda.
 
-### 📄 Detalhes do produto
+## 📄 Detalhes do produto
 
 Permite visualizar as informações individuais de cada produto selecionado.
 
@@ -65,7 +76,7 @@ São exibidos:
 * Quantidade em estoque;
 * ID.
 
-### ➕ Cadastro de produto
+## ➕ Cadastro de produto
 
 Possui um formulário para cadastro de novos produtos com os campos:
 
@@ -78,7 +89,7 @@ O formulário possui validações para evitar informações vazias ou inválidas
 
 Após o preenchimento correto, o aplicativo apresenta uma mensagem de confirmação.
 
-> **Observação:** nesta versão acadêmica, o produto cadastrado pelo formulário ainda não é persistido na lista, pois os dados são mockados. A persistência será implementada nas próximas etapas do projeto.
+> **Observação:** nesta etapa, os produtos ainda utilizam dados mockados e não possuem persistência no banco de dados. A utilização do Cloud Firestore e o CRUD dos produtos serão implementados em uma etapa posterior.
 
 ## 🛠️ Tecnologias utilizadas
 
@@ -86,7 +97,10 @@ Após o preenchimento correto, o aplicativo apresenta uma mensagem de confirmaç
 * **Dart**
 * **Material Design**
 * **GoRouter**
+* **Firebase Core**
+* **Firebase Authentication**
 * **VS Code**
+* **Android Studio**
 * **Android Emulator**
 
 ## 📂 Estrutura do projeto
@@ -94,15 +108,23 @@ Após o preenchimento correto, o aplicativo apresenta uma mensagem de confirmaç
 ```text
 lib
 ├── app
+│   ├── auth_router_refresh.dart
 │   └── router.dart
 │
 ├── data
-│   └── produto_mock.dart
+│   ├── produto_mock.dart
+│   └── repositories
+│       └── auth_repository.dart
 │
 ├── domain
 │   └── produto.dart
 │
 ├── ui
+│   ├── auth
+│   │   ├── login_screen.dart
+│   │   ├── register_screen.dart
+│   │   └── forgot_password_screen.dart
+│   │
 │   ├── home
 │   │   └── home_screen.dart
 │   │
@@ -111,16 +133,20 @@ lib
 │       ├── produto_form_screen.dart
 │       └── produto_list_screen.dart
 │
+├── firebase_options.dart
 └── main.dart
 ```
 
 A organização separa as responsabilidades do projeto:
 
-* `app`: configuração da navegação;
-* `data`: dados simulados;
+* `app`: configuração da navegação e atualização das rotas conforme o estado de autenticação;
+* `data`: dados simulados e acesso aos serviços de autenticação;
 * `domain`: entidades e modelos;
-* `ui`: telas e interface;
-* `main.dart`: inicialização do aplicativo.
+* `ui/auth`: telas de login, cadastro e recuperação de senha;
+* `ui/home`: tela principal do aplicativo;
+* `ui/produto`: telas relacionadas aos produtos;
+* `firebase_options.dart`: configurações geradas para integração com o Firebase;
+* `main.dart`: inicialização do aplicativo e do Firebase.
 
 ## ▶️ Como executar o projeto
 
@@ -128,94 +154,4 @@ A organização separa as responsabilidades do projeto:
 
 É necessário ter instalado:
 
-* Flutter SDK;
-* Dart SDK;
-* Android Studio ou outro ambiente compatível;
-* Android Emulator ou dispositivo Android;
-* VS Code ou outra IDE compatível.
-
-### Executando
-
-Clone o repositório:
-
-```bash
-git clone https://github.com/Leotec29/estoque_facil.git
-```
-
-Entre na pasta:
-
-```bash
-cd estoque_facil
-```
-
-Instale as dependências:
-
-```bash
-flutter pub get
-```
-
-Verifique o projeto:
-
-```bash
-flutter analyze
-```
-
-Execute o aplicativo:
-
-```bash
-flutter run
-```
-
-## 📱 Screenshots
-
-
-### Tela inicial
-
-![Tela inicial do Estoque Fácil](docs/images/home.png)
-
-### Lista de produtos
-
-![Lista de produtos do Estoque Fácil](docs/images/lista_produtos.png)
-
-### Cadastro de produto
-
-![Formulário de cadastro de produto](docs/images/cadastro_produto.png)
-
-
-## 🔗 Repositório
-
-**GitHub:**
-https://github.com/Leotec29/estoque_facil
-
-## 🔮 Evoluções futuras
-
-O projeto será desenvolvido durante as próximas etapas da disciplina.
-
-Entre as futuras evoluções estão:
-
-* Implementação de autenticação com Firebase Authentication;
-* Cadastro e login de usuários;
-* Associação dos produtos ao usuário autenticado;
-* Utilização do Cloud Firestore;
-* Persistência dos produtos no banco de dados;
-* Operações de criação, leitura, atualização e exclusão (CRUD);
-* Melhorias na experiência do usuário;
-* Possibilidade de edição e exclusão de produtos.
-
-## ⚠️ Limitações da versão atual
-
-Esta versão possui algumas limitações:
-
-* Os produtos são armazenados apenas em memória através de dados mockados;
-* O cadastro ainda não possui persistência;
-* Não existe autenticação de usuários;
-* Não existe banco de dados em nuvem;
-* Os dados são perdidos quando o aplicativo é reiniciado.
-
-Essas limitações fazem parte do escopo da primeira versão e serão tratadas nas próximas etapas do projeto.
-
-## 👨‍💻 Autor
-
-**Leonardo Costa**
-
-Projeto desenvolvido para a disciplina de desenvolvimento de aplicativos utilizando Flutter.
+* Flutt*

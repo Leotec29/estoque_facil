@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "396558485864",
+    "project_id": "estoque-facil-f7ad3",
+    "storage_bucket": "estoque-facil-f7ad3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396558485864:android:51376ed0900fe5860beedd",
+        "android_client_info": {
+          "package_name": "com.example.estoque_facil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvjnfw9h0tGq7t_22BRBYitYFHnLPDURQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
