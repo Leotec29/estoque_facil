@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../data/repositories/produto_firestore_repository.dart';
+import '../../domain/produto.dart';
+
 class ProdutoFormScreen extends StatefulWidget {
-  const ProdutoFormScreen({super.key});
+  final Produto? produto;
+
+  const ProdutoFormScreen({super.key, this.produto});
 
   @override
   State<ProdutoFormScreen> createState() => _ProdutoFormScreenState();
@@ -15,6 +20,26 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
   final _precoController = TextEditingController();
   final _quantidadeController = TextEditingController();
 
+  final ProdutoFirestoreRepository _repository = ProdutoFirestoreRepository();
+
+  bool _salvando = false;
+
+  bool get _editando => widget.produto != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final produto = widget.produto;
+
+    if (produto != null) {
+      _nomeController.text = produto.nome;
+      _categoriaController.text = produto.categoria;
+      _precoController.text = produto.preco.toStringAsFixed(2);
+      _quantidadeController.text = produto.quantidade.toString();
+    }
+  }
+
   @override
   void dispose() {
     _nomeController.dispose();
@@ -24,49 +49,91 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
     super.dispose();
   }
 
-  void _salvarProduto() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _salvarProduto() async {
+    if (_salvando) return;
+
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _salvando = true;
+    });
+
+    try {
+      final produto = Produto(
+        id: widget.produto?.id ?? '',
+        nome: _nomeController.text.trim(),
+        categoria: _categoriaController.text.trim(),
+        preco: double.parse(_precoController.text.trim().replaceAll(',', '.')),
+        quantidade: int.parse(_quantidadeController.text.trim()),
+      );
+
+      if (_editando) {
+        await _repository.atualizarProduto(produto);
+      } else {
+        await _repository.adicionarProduto(produto);
+      }
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Produto cadastrado com sucesso!'),
+        SnackBar(
+          content: Text(
+            _editando
+                ? 'Produto atualizado com sucesso!'
+                : 'Produto cadastrado com sucesso!',
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
 
-      _nomeController.clear();
-      _categoriaController.clear();
-      _precoController.clear();
-      _quantidadeController.clear();
+      Navigator.of(context).pop();
+    } catch (erro) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Não foi possível salvar o produto. Verifique sua conexão e tente novamente.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _salvando = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Novo Produto'), centerTitle: true),
+      appBar: AppBar(
+        title: Text(_editando ? 'Editar Produto' : 'Novo Produto'),
+        centerTitle: true,
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Icon(Icons.add_box, size: 70),
-
+            Icon(_editando ? Icons.edit : Icons.add_box, size: 70),
             const SizedBox(height: 16),
-
-            const Text(
-              'Cadastrar produto',
+            Text(
+              _editando ? 'Editar produto' : 'Cadastrar produto',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 8),
-
-            const Text(
-              'Preencha os dados abaixo para adicionar um novo produto.',
+            Text(
+              _editando
+                  ? 'Altere os dados do produto abaixo.'
+                  : 'Preencha os dados abaixo para adicionar um novo produto.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15),
+              style: const TextStyle(fontSize: 15),
             ),
-
             const SizedBox(height: 30),
 
             TextFormField(
@@ -90,7 +157,6 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
                 return null;
               },
             ),
-
             const SizedBox(height: 16),
 
             TextFormField(
@@ -110,7 +176,6 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
                 return null;
               },
             ),
-
             const SizedBox(height: 16),
 
             TextFormField(
@@ -130,7 +195,9 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
                   return 'Digite o preço.';
                 }
 
-                final preco = double.tryParse(value.replaceAll(',', '.'));
+                final preco = double.tryParse(
+                  value.trim().replaceAll(',', '.'),
+                );
 
                 if (preco == null || preco <= 0) {
                   return 'Digite um preço válido.';
@@ -139,7 +206,6 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
                 return null;
               },
             ),
-
             const SizedBox(height: 16),
 
             TextFormField(
@@ -156,7 +222,7 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
                   return 'Digite a quantidade.';
                 }
 
-                final quantidade = int.tryParse(value);
+                final quantidade = int.tryParse(value.trim());
 
                 if (quantidade == null || quantidade < 0) {
                   return 'Digite uma quantidade válida.';
@@ -165,17 +231,26 @@ class _ProdutoFormScreenState extends State<ProdutoFormScreen> {
                 return null;
               },
             ),
-
             const SizedBox(height: 28),
 
             SizedBox(
               height: 52,
               child: FilledButton.icon(
-                onPressed: _salvarProduto,
-                icon: const Icon(Icons.save),
-                label: const Text(
-                  'Cadastrar produto',
-                  style: TextStyle(fontSize: 16),
+                onPressed: _salvando ? null : _salvarProduto,
+                icon: _salvando
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.save),
+                label: Text(
+                  _salvando
+                      ? 'Salvando...'
+                      : _editando
+                      ? 'Salvar alterações'
+                      : 'Cadastrar produto',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
             ),
